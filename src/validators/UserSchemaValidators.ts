@@ -21,4 +21,14 @@ export const UserSignupSchema = z.object({
 			/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
 			"Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character."
 		),
+	passwordConfirm: z.string({ required_error: "Password Confirm Missing" }),
+});
+export const resetPasswordSchema = z.object({
+	password: z
+		.string({ required_error: "password is required" })
+		.regex(
+			/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+			"Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character."
+		),
+	passwordConfirm: z.string({ required_error: "Password Confirm Missing" }),
 });

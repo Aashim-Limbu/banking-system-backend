@@ -40,11 +40,7 @@ export const signinUser = catchAsync(async (req, res, next) => {
 export const signupUser = catchAsync(async (req, res, next) => {
 	const { success, error } = UserSignupSchema.safeParse(req.body);
 	if (!success) {
-		return res.status(400).json({
-			status: "Error",
-			statusCode: 400,
-			error: error.flatten(),
-		});
+		return next(new AppError(error, 400));
 	}
 	if (await User.findOne({ email: req.body.email }))
 		return next(new AppError("User Already Exists", 400));
