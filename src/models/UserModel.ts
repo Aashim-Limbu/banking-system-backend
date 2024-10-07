@@ -7,6 +7,7 @@ export interface UserDocument extends Document {
 	passwordConfirm: string | undefined;
 	passwordResetToken: string | undefined;
 	passwordResetTokenExpires: unknown;
+	passwordChangedAt: Date;
 	comparePassword(
 		candidatePassword: string,
 		userPassword: string
@@ -42,6 +43,7 @@ const userSchema = new Schema(
 		lastName: String,
 		passwordResetToken: String,
 		passwordResetTokenExpires: Date,
+		passwordChangedAt: Date,
 	},
 	{
 		timestamps: true,
