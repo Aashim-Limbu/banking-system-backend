@@ -28,11 +28,18 @@ const userSchema = new Schema(
 	},
 	{
 		timestamps: true,
+		toJSON: { virtuals: true },
+		toObject: { virtuals: true },
 	}
 );
 userSchema.pre("save", async function (next) {
 	this.password = await bcrypt.hash(this.password, 12);
 	next();
+});
+userSchema.virtual("account", {
+	ref: "Account",
+	foreignField: "user",
+	localField: "_id",
 });
 userSchema.methods.comparePassword = async function (
 	candidatePassword: string,

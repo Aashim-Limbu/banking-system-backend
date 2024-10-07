@@ -72,7 +72,7 @@ export const getAllUser = catchAsync(async (req, res, next) => {
 		.filter()
 		.limit()
 		.page();
-	const users = await User.find(query);
+	const users = await User.find(query).populate("account");
 	res.status(200).json({
 		status: "success",
 		statusCode: 200,
