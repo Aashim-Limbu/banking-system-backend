@@ -5,8 +5,8 @@ const transporter = nodemailer.createTransport({
 	host: "smtp.ethereal.email",
 	port: 587,
 	auth: {
-		user: "lon11@ethereal.email",
-		pass: "1qfuYUaCvjHa5qmFRs",
+		user: process.env.SENDER_EMAIL,
+		pass: process.env.SENDER_PASSWORD,
 	},
 });
 export async function sendMail(option: {
@@ -14,6 +14,10 @@ export async function sendMail(option: {
 	to: string;
 	resetUrl: string;
 }) {
+	console.log({
+		user: process.env.SENDER_EMAIL,
+		pass: process.env.SENDER_PASSWORD,
+	});
 	await transporter.sendMail({
 		from: process.env.SENDER_EMAIL,
 		subject: option.subject,

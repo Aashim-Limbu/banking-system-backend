@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Query, Schema } from "mongoose";
 import bcrypt from "bcrypt"; //for salting
 import crypto from "crypto";
 export interface UserDocument extends Document {
@@ -13,6 +13,7 @@ export interface UserDocument extends Document {
 		userPassword: string
 	): Promise<boolean>;
 	createResetToken(): string;
+	validateToken(param: Date): boolean;
 }
 const userSchema = new Schema(
 	{
@@ -78,6 +79,20 @@ userSchema.pre("save", async function (next) {
 	console.log("password", this.password);
 	this.password = await bcrypt.hash(this.password, 12);
 	this.passwordConfirm = undefined;
+	next();
+});
+userSchema.methods.validateToken = function (
+	this: UserDocument,
+	jwttimestamp: Date
+) {
+	if (this.passwordChangedAt) {
+		return this.passwordChangedAt > jwttimestamp;
+	}
+	return false;
+};
+userSchema.pre("save", function (next) {
+	if (!this.isModified("password") || this.isNew) next();
+	this.passwordChangedAt = new Date(Date.now() - 1000);
 	next();
 });
 

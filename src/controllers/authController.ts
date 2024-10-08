@@ -22,7 +22,10 @@ export const protect = catchAsync(async (req, res, next) => {
 	const decoded = jwt.verify(token, process.env.JWT_SECRETKEY!) as JwtPayload;
 	const freshUser = await User.findById(decoded.id);
 	if (!freshUser) {
-		next(new AppError("Token no longer valid Please re-login", 401));
+		return next(new AppError("Token no longer valid Please re-login", 401));
+	}
+	if (freshUser.validateToken(new Date(decoded.iat as number))) {
+		return next(new AppError("Password was changed please login again", 401));
 	}
 	req.user = freshUser;
 	next();
@@ -37,6 +40,7 @@ export const forgotPassword = catchAsync(async (req, res, next) => {
 		const resetToken = user.createResetToken();
 		console.log("ResetToken 🥈", resetToken);
 		await user.save();
+		console.log("User saved, sending email...");
 		await sendMail({
 			subject: "Reset Password",
 			to: email,
@@ -44,17 +48,20 @@ export const forgotPassword = catchAsync(async (req, res, next) => {
 				"host"
 			)}/api/users/reset-password/${resetToken}`,
 		});
-		res.status(200).json({
+		console.log("Email sent successfully");
+		return res.status(200).json({
 			status: "success",
 			message: "Check your mail",
 		});
 	} catch (error) {
+		console.error("Error while sending email:", error);
 		user.passwordResetToken = undefined;
 		user.passwordResetTokenExpires = undefined;
 		await user.save({ validateBeforeSave: false });
 		return next(new AppError("Error while sending Email", 500));
 	}
 });
+
 export const resetPassword = catchAsync(async (req, res, next) => {
 	const resetToken = crypto
 		.createHash("sha256")
